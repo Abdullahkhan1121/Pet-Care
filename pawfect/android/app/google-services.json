@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "196531323719",
+    "project_id": "paw-fect-beac4",
+    "storage_bucket": "paw-fect-beac4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:196531323719:android:de4a1012f2f15f43250262",
+        "android_client_info": {
+          "package_name": "com.example.pawfect"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDLcaKXgbuPiFBQd7YRvCNHyWc7QjX4igs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
