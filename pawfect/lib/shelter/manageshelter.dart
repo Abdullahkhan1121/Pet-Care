@@ -86,7 +86,7 @@ class _ManageSheltersPageState extends State<ManageSheltersPage> {
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: Sheltertheme.primaryColor,
+              backgroundColor: ShelterTheme.primaryColor, // ✅ Fixed
             ),
             onPressed: () async {
               await _firestore.collection("shelters").doc(shelterDoc.id).update({
@@ -111,7 +111,7 @@ class _ManageSheltersPageState extends State<ManageSheltersPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: ShelterAppBar(title: "Manage Shelters"),
-      drawer: ShelterDrawer(),
+      drawer: const ShelterDrawer(),
       body: StreamBuilder<QuerySnapshot>(
         stream: _firestore
             .collection("shelters")
@@ -123,10 +123,10 @@ class _ManageSheltersPageState extends State<ManageSheltersPage> {
           }
 
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return const Center(
+            return Center(
               child: Text(
                 "No shelters found",
-                style: Sheltertheme.bodyText,
+                style: ShelterTheme.bodyTextWhite, // ✅ fixed
               ),
             );
           }
@@ -145,10 +145,14 @@ class _ManageSheltersPageState extends State<ManageSheltersPage> {
                 margin: const EdgeInsets.symmetric(vertical: 8),
                 elevation: 4,
                 child: ListTile(
-                  leading: const Icon(Icons.home_work, color: Sheltertheme.primaryColor),
+                  leading: const Icon(Icons.home_work,
+                      color: ShelterTheme.primaryColor), // ✅ fixed
                   title: Text(
                     shelter['name'],
-                    style: Sheltertheme.heading2,
+                    style: const TextStyle( // ✅ replaced missing heading2
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

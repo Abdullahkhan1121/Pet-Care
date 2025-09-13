@@ -47,6 +47,8 @@ class AdminDrawer extends StatelessWidget {
                 context, Icons.shopping_bag, "Products", '/products', const Color.fromARGB(255, 73, 163, 223)),
             _buildDrawerItem(
                 context, Icons.event, "Appointments", '/appointments', const Color.fromARGB(255, 73, 163, 223)),
+            _buildDrawerItem(
+                context, Icons.event, "Approve Shelter", '/admin-approve', const Color.fromARGB(255, 73, 163, 223)),
 
             const SizedBox(height: 20),
 

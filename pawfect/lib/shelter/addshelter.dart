@@ -1,174 +1,217 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:pawfect/shelter/appbar.dart';
-import 'package:pawfect/shelter/drawer.dart';
-import 'package:pawfect/shelter/sheltertheme.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class AddShelterPage extends StatefulWidget {
-  const AddShelterPage({super.key});
+class AddShelterForm extends StatefulWidget {
+  const AddShelterForm({super.key});
 
   @override
-  State<AddShelterPage> createState() => _AddShelterPageState();
+  State<AddShelterForm> createState() => _AddShelterFormState();
 }
 
-class _AddShelterPageState extends State<AddShelterPage> {
+class _AddShelterFormState extends State<AddShelterForm> {
   final _formKey = GlobalKey<FormState>();
 
-  // Controllers for fields
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _locationController = TextEditingController();
-  final TextEditingController _capacityController = TextEditingController();
-  final TextEditingController _contactController = TextEditingController();
-  final TextEditingController _descriptionController = TextEditingController();
+  final _nameController = TextEditingController();
+  final _licenseController = TextEditingController();
+  final _descriptionController = TextEditingController();
+  final _yearController = TextEditingController();
+  final _addressController = TextEditingController();
+
+  String? _selectedType;
+  bool _loading = true;
+  bool _saving = false;
+  String? _status; // null, "pending", "approved"
+
+  final List<String> _shelterTypes = const [
+    'Nonprofit',
+    'Government',
+    'Private Rescue',
+    'Foster Network',
+  ];
 
   @override
-  void dispose() {
-    _nameController.dispose();
-    _locationController.dispose();
-    _capacityController.dispose();
-    _contactController.dispose();
-    _descriptionController.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+    _loadShelter();
   }
 
-  Future<void> _submitShelter() async {
-    if (_formKey.currentState!.validate()) {
-      try {
-        final shelterData = {
-          "name": _nameController.text.trim(),
-          "location": _locationController.text.trim(),
-          "capacity": int.tryParse(_capacityController.text.trim()) ?? 0,
-          "contact": _contactController.text.trim(),
-          "description": _descriptionController.text.trim(),
-          "createdAt": FieldValue.serverTimestamp(),
-          "isDeleted": false,
-        };
+  Future<void> _loadShelter() async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return;
 
-        await FirebaseFirestore.instance.collection("shelters").add(shelterData);
+    final doc =
+        await FirebaseFirestore.instance.collection('shelters').doc(uid).get();
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text("✅ Shelter added successfully!"),
-            backgroundColor: Sheltertheme.primaryColor,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
+    if (doc.exists) {
+      final data = doc.data()!;
+      _status = data['status'] as String? ?? 'pending';
+
+      // Prefill form if approved (optional)
+      _nameController.text = data['name'] ?? '';
+      _licenseController.text = data['licenseNumber'] ?? '';
+      _selectedType = data['type'];
+      _descriptionController.text = data['description'] ?? '';
+      _yearController.text = data['yearEstablished'] ?? '';
+      _addressController.text = data['address'] ?? '';
+    }
+    setState(() => _loading = false);
+  }
+
+  Future<void> _saveShelter() async {
+    if (!_formKey.currentState!.validate()) return;
+    setState(() => _saving = true);
+
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return;
+
+    await FirebaseFirestore.instance.collection('shelters').doc(uid).set({
+      'name': _nameController.text.trim(),
+      'licenseNumber': _licenseController.text.trim(),
+      'type': _selectedType,
+      'description': _descriptionController.text.trim(),
+      'yearEstablished': _yearController.text.trim(),
+      'address': _addressController.text.trim(),
+      'status': 'pending', // always set to pending when submitting
+      'createdAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
+
+    if (mounted) {
+      setState(() => _saving = false);
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Shelter information submitted. Waiting for admin approval.',
           ),
-        );
-
-        // Clear fields
-        _nameController.clear();
-        _locationController.clear();
-        _capacityController.clear();
-        _contactController.clear();
-        _descriptionController.clear();
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("❌ Failed to add shelter: $e"),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+        ),
+      );
     }
   }
 
   @override
+  void dispose() {
+    _nameController.dispose();
+    _licenseController.dispose();
+    _descriptionController.dispose();
+    _yearController.dispose();
+    _addressController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (_loading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    // If the request is still pending
+    if (_status == 'pending') {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Shelter Request')),
+        body: const Center(
+          child: Padding(
+            padding: EdgeInsets.all(24.0),
+            child: Text(
+              'Your shelter registration request is pending admin approval.\n\n'
+              'Please wait until an admin reviews and approves your request.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 16),
+            ),
+          ),
+        ),
+      );
+    }
+
+    // If approved or no doc yet → show form
     return Scaffold(
-      appBar: ShelterAppBar(title: "Add Shelter"),
-      drawer: ShelterDrawer(),
+      appBar: AppBar(title: const Text('Add / Update Shelter')),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: Form(
           key: _formKey,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _buildTextField(
-                  controller: _nameController,
-                  label: "Shelter Name",
-                  icon: Icons.home),
-              const SizedBox(height: 16),
-              _buildTextField(
-                  controller: _locationController,
-                  label: "Location",
-                  icon: Icons.location_on),
-              const SizedBox(height: 16),
-              _buildTextField(
-                controller: _capacityController,
-                label: "Capacity",
-                icon: Icons.people,
-                keyboardType: TextInputType.number,
+              // Shelter Name
+              TextFormField(
+                controller: _nameController,
+                decoration: const InputDecoration(labelText: 'Shelter Name'),
+                validator: (val) =>
+                    val == null || val.isEmpty ? 'Enter shelter name' : null,
               ),
-              const SizedBox(height: 16),
-              _buildTextField(
-                controller: _contactController,
-                label: "Contact Number",
-                icon: Icons.phone,
-                keyboardType: TextInputType.phone,
+              const SizedBox(height: 12),
+
+              // Registration / License Number
+              TextFormField(
+                controller: _licenseController,
+                decoration: const InputDecoration(
+                    labelText: 'Registration / License Number (optional)'),
               ),
-              const SizedBox(height: 16),
-              _buildTextField(
+              const SizedBox(height: 12),
+
+              // Type of Shelter (dropdown)
+              DropdownButtonFormField<String>(
+                value: _selectedType,
+                decoration: const InputDecoration(labelText: 'Type of Shelter'),
+                items: _shelterTypes
+                    .map((type) =>
+                        DropdownMenuItem(value: type, child: Text(type)))
+                    .toList(),
+                onChanged: (val) => setState(() => _selectedType = val),
+                validator: (val) =>
+                    val == null || val.isEmpty ? 'Select shelter type' : null,
+              ),
+              const SizedBox(height: 12),
+
+              // Description / Mission Statement
+              TextFormField(
                 controller: _descriptionController,
-                label: "Description",
-                icon: Icons.description,
-                maxLines: 3,
+                decoration: const InputDecoration(
+                    labelText: 'Description / Mission Statement'),
+                minLines: 3,
+                maxLines: 5,
+                validator: (val) =>
+                    val == null || val.isEmpty ? 'Enter description' : null,
               ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Sheltertheme.secondaryColor,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                onPressed: _submitShelter,
-                child: const Text(
-                  "Add Shelter",
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              )
+              const SizedBox(height: 12),
+
+              // Year Established
+              TextFormField(
+                controller: _yearController,
+                decoration: const InputDecoration(labelText: 'Year Established'),
+                keyboardType: TextInputType.number,
+                validator: (val) {
+                  if (val == null || val.isEmpty) {
+                    return 'Enter year established';
+                  }
+                  if (int.tryParse(val) == null) {
+                    return 'Enter a valid year';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 12),
+
+              // Address
+              TextFormField(
+                controller: _addressController,
+                decoration: const InputDecoration(labelText: 'Address'),
+                validator: (val) =>
+                    val == null || val.isEmpty ? 'Enter address' : null,
+              ),
+              const SizedBox(height: 20),
+
+              _saving
+                  ? const CircularProgressIndicator()
+                  : ElevatedButton.icon(
+                      onPressed: _saveShelter,
+                      icon: const Icon(Icons.save),
+                      label: const Text('Save Shelter Info'),
+                    ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    required IconData icon,
-    TextInputType keyboardType = TextInputType.text,
-    int maxLines = 1,
-  }) {
-    return TextFormField(
-      controller: controller,
-      keyboardType: keyboardType,
-      maxLines: maxLines,
-      validator: (value) =>
-          value == null || value.isEmpty ? "Please enter $label" : null,
-      decoration: InputDecoration(
-        prefixIcon: Icon(icon, color: Sheltertheme.primaryColor),
-        labelText: label,
-        labelStyle: const TextStyle(color: Sheltertheme.primaryColor),
-        filled: true,
-        fillColor: Colors.grey.shade100,
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Sheltertheme.primaryColor),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide:
-              const BorderSide(color: Sheltertheme.secondaryColor, width: 2),
         ),
       ),
     );

@@ -1,29 +1,36 @@
 import 'package:flutter/material.dart';
 
-class Sheltertheme {
-  // 🎨 Brand Colors
-  static const Color primaryColor = Color(0xFF2980B9); // Blue
-  static const Color secondaryColor = Color(0xFF6DD5FA); // Light Blue
-  static const Color accentColor = Color(0xFF27AE60); // Green for highlights
-  static const Color backgroundColor = Color(0xFFF5F6FA); // Light background
-  static const Color cardColor = Colors.white;
+class ShelterTheme {
+  // 🎨 Gradient for headers, buttons etc.
+  static const LinearGradient mainGradient = LinearGradient(
+    colors: [Color(0xFF2F80ED), Color(0xFF56CCF2)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
 
-  // 🔹 AppBar Theme
+  // 🌟 Core Colors
+  static const Color primaryColor = Color(0xFF2F80ED);
+  static const Color secondaryColor = Color(0xFF56CCF2);
+  static const Color accentColor = Color(0xFF27AE60); // Green for health/approval
+  static const Color dangerColor = Color(0xFFE74C3C); // Red for emergencies
+  static const Color scaffoldBackground = Color(0xFFF5F7FA);
+
+  // 🧑‍⚕️ AppBar Theme
   static AppBarTheme appBarTheme = const AppBarTheme(
-    backgroundColor: primaryColor,
+    backgroundColor: Colors.white,
     foregroundColor: Colors.black,
-    elevation: 2,
+    elevation: 1,
     titleTextStyle: TextStyle(
-      color: Colors.white,
+      color: Colors.black,
       fontSize: 20,
       fontWeight: FontWeight.bold,
     ),
-    iconTheme: IconThemeData(color: Colors.white),
+    iconTheme: IconThemeData(color: Colors.black),
   );
 
-  // 🔹 Card Decoration
+  // 🪪 Card Decoration
   static BoxDecoration cardDecoration({Color? color}) => BoxDecoration(
-        color: color ?? cardColor,
+        color: color ?? Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: const [
           BoxShadow(
@@ -34,30 +41,18 @@ class Sheltertheme {
         ],
       );
 
-  // 🔹 Drawer / Container Decoration
-  static BoxDecoration containerDecoration({Color? color}) => BoxDecoration(
-        color: color ?? Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: const [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 5,
-            offset: Offset(2, 2),
-          ),
-        ],
-      );
-
-  // 🔹 Text Styles
+  // ✍️ Text Styles
   static const TextStyle heading1 = TextStyle(
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: FontWeight.bold,
-    color: Colors.black87,
+    color: Colors.black,
   );
 
-  static const TextStyle heading2 = TextStyle(
+  // 🔥 FIXED: const hata diya, ab safe use hoga
+  static TextStyle heading2 = const TextStyle(
     fontSize: 20,
     fontWeight: FontWeight.w600,
-    color: Colors.black87,
+    color: Colors.black,
   );
 
   static const TextStyle bodyText = TextStyle(
@@ -70,17 +65,30 @@ class Sheltertheme {
     color: Colors.white,
   );
 
-  // 🔹 Button Theme
-  static ButtonStyle buttonStyle = ElevatedButton.styleFrom(
+  static const TextStyle caption = TextStyle(
+    fontSize: 14,
+    color: Colors.grey,
+  );
+
+  // 🔘 Button Styles
+  static ButtonStyle primaryButtonStyle = ElevatedButton.styleFrom(
     backgroundColor: primaryColor,
     foregroundColor: Colors.white,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(12),
-    ),
-    textStyle: const TextStyle(
-      fontSize: 16,
-      fontWeight: FontWeight.bold,
-    ),
+  );
+
+  static ButtonStyle dangerButtonStyle = ElevatedButton.styleFrom(
+    backgroundColor: dangerColor,
+    foregroundColor: Colors.white,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+  );
+
+  static ButtonStyle successButtonStyle = ElevatedButton.styleFrom(
+    backgroundColor: accentColor,
+    foregroundColor: Colors.white,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
   );
 }

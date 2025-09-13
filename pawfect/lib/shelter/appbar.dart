@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pawfect/shelter/sheltertheme.dart';
 
-
 class ShelterAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
 
@@ -10,11 +9,16 @@ class ShelterAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      title: Text(title),
+      title: Text(
+        title,
+        style: const TextStyle(
+          color: Colors.black,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
       centerTitle: true,
-      backgroundColor: Sheltertheme.appBarTheme.backgroundColor,
-      foregroundColor: Colors.black,
-      elevation: Sheltertheme.appBarTheme.elevation,
+      backgroundColor: ShelterTheme.primaryColor, // ✅ corrected class name
+      elevation: 4,
     );
   }
 
