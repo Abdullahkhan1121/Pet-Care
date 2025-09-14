@@ -9,6 +9,7 @@ import 'package:pawfect/shelter/addshelter.dart';
 import 'package:pawfect/shelter/home.dart';
 import 'package:pawfect/shelter/pet_listing.dart';
 import 'package:pawfect/shelter/shelterproducts.dart';
+import 'package:pawfect/shelter/shelters_order.dart';
 import 'package:pawfect/users/Manage_blogs.dart';
 import 'package:pawfect/users/health_track.dart';
 import 'package:pawfect/users/manage_appoinments.dart';
@@ -102,7 +103,7 @@ class MyApp extends StatelessWidget {
   '/pets': (context) => Managepets(),
   '/health': (context) => HealthTrack(),
   '/appointments': (context) => ManageAppoinments(),
-  '/petstore': (context) => PetStore(),
+  '/petstore': (context) => const PetStore(),
   '/myblogs': (context) => ManageBlogs(),
   '/feedback': (context) => UserFeedback(),
 
@@ -118,6 +119,7 @@ class MyApp extends StatelessWidget {
   '/shelter-products': (context) => Shelterproducts(), // ✅ Combined Tab Page
   '/add-shelter': (context) => const AddShelterForm(),
   '/pet-listings': (context) => const PetListingPage(),
+  '/shelter-orders': (context) => const SheltersOrder(),
 
   // 🔹 Vet routes
   '/vet-health': (context) => const HealthRecordsPage(),

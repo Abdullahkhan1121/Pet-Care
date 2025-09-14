@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:pawfect/users/pet_store.dart';
 import 'package:pawfect/users/user_appbar.dart';
 import 'package:pawfect/users/user_drawer.dart';
 
@@ -28,7 +29,7 @@ class _PetOwnerHomeScreenState extends State<PetOwnerHomeScreen> {
   final List<Widget> _pages = [
     const _DashboardGrid(),
     const Center(child: Text("📖 Blogs Page (TODO)")),
-    const Center(child: Text("🛒 Pet Store Page (TODO)")),
+  
   ];
 
   void _onNavTapped(int index) {
